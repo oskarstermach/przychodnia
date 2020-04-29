@@ -1,8 +1,13 @@
 package pl.oskarstermach.przychodnia.models;
 
-public class Medicine {
+import java.io.Serializable;
+
+public class Medicine implements Serializable {
     private String name;
     private int amount;
+
+    public Medicine() {
+    }
 
     public Medicine(String name, int amount) {
         this.name = name;
@@ -23,5 +28,13 @@ public class Medicine {
 
     public void setAmount(int amount) {
         this.amount = amount;
+    }
+
+    @Override
+    public String toString() {
+        return "Medicine{" +
+                "name='" + name + '\'' +
+                ", amount=" + amount +
+                '}';
     }
 }

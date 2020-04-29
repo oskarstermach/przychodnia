@@ -1,9 +1,14 @@
 package pl.oskarstermach.przychodnia.models;
 
-public class Person {
+import java.io.Serializable;
+
+public class Person implements Serializable {
     private String firstName;
     private String lastName;
     private int age;
+
+    public Person() {
+    }
 
     public Person(String firstName, String lastName, int age) {
         this.firstName = firstName;
@@ -33,5 +38,14 @@ public class Person {
 
     public void setAge(int age) {
         this.age = age;
+    }
+
+    @Override
+    public String toString() {
+        return "Person{" +
+                "firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", age=" + age +
+                '}';
     }
 }

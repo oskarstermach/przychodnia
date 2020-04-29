@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum AppOperation {
-    ADD("A"), UPDATE("U"), DELETE("D"), TOP_MEDICINES("T"), GET("G");
+    ADD("A"), UPDATE("U"), DELETE("D"), TOP_MEDICINES("T"), GET("G"), INVALID("I");
 
     private final String KEY;
 
