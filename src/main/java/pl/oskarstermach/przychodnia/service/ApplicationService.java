@@ -1,44 +1,49 @@
 package pl.oskarstermach.przychodnia.service;
 
-import com.hazelcast.config.Config;
-import com.hazelcast.core.Hazelcast;
-import com.hazelcast.core.HazelcastInstance;
-import pl.oskarstermach.przychodnia.HConfig;
+import com.whalin.MemCached.MemCachedClient;
 import pl.oskarstermach.przychodnia.models.Receipt;
 
-import java.net.UnknownHostException;
-import java.util.Map;
+import java.util.Scanner;
 import java.util.UUID;
 
-public class ApplicationService extends AbstractService{
+public class ApplicationService extends AbstractService {
     private DeleteService deleteService;
     private UpdateService updateService;
     private MedicineService medicineService;
 
-    public ApplicationService(HazelcastInstance instance, DeleteService deleteService, UpdateService updateService, MedicineService medicineService) {
-        super(instance);
+    public ApplicationService(DeleteService deleteService,
+                              UpdateService updateService,
+                              MedicineService medicineService,
+                              Scanner in,
+                              MemCachedClient memCachedClient) {
+        super(in, memCachedClient);
         this.deleteService = deleteService;
         this.updateService = updateService;
         this.medicineService = medicineService;
     }
 
-    public void addNewEntry(){
-        Map<String, Receipt> receipts = instance.getMap("receipts");
-        receipts.put(UUID.randomUUID().toString(), Builder.buildReceipt());
+    public void addNewEntry() {
+        String uuid = UUID.randomUUID().toString();
+        System.out.println("Adding new entry with key: " + uuid);
+        memCachedClient.add(uuid, Builder.buildReceipt());
     }
 
-    public void deleteEntry(){
+    public void deleteEntry() {
         deleteService.deleteOptionSelector();
     }
 
     public void getEntries() {
-        Map<String, Receipt> receipts = instance.getMap("receipts");
+        System.out.println("Insert identifier");
+        String uuid = in.nextLine();
+        final Object o = memCachedClient.get(uuid);
 
-        if(receipts.values().size() > 0) {
-            receipts.values().forEach(System.out::println);
+        if(o != null){
+            Receipt receipt = (Receipt) o;
+            System.out.println(receipt.toString());
         }else{
-            System.out.println("No receipts in the system!");
+            System.out.println("Couldnt find receipt in the system");
         }
+
     }
 
     public void updateEntry(){

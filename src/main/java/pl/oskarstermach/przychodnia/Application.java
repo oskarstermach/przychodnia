@@ -1,28 +1,41 @@
 package pl.oskarstermach.przychodnia;
 
-import com.hazelcast.config.Config;
-import com.hazelcast.core.Hazelcast;
-import com.hazelcast.core.HazelcastInstance;
-import pl.oskarstermach.przychodnia.models.Medicine;
+
+import com.whalin.MemCached.MemCachedClient;
+import com.whalin.MemCached.SockIOPool;
 import pl.oskarstermach.przychodnia.service.ApplicationService;
 import pl.oskarstermach.przychodnia.service.DeleteService;
-import pl.oskarstermach.przychodnia.service.HListener;
 import pl.oskarstermach.przychodnia.service.MedicineService;
 import pl.oskarstermach.przychodnia.service.UpdateService;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Scanner;
 
 public class Application {
     public static void main(String[] args) throws IOException {
-        Config config = HConfig.getConfig();
-        HazelcastInstance hazelcastInstance = Hazelcast.newHazelcastInstance(config);
-        HListener.attachListener(hazelcastInstance);
 
-        DeleteService deleteService = new DeleteService(hazelcastInstance);
-        MedicineService medicineService = new MedicineService(hazelcastInstance);
-        UpdateService updateService = new UpdateService(hazelcastInstance);
+        String[] servers = {"127.0.0.1:11211"};
+        SockIOPool pool = SockIOPool.getInstance("Przychodnia");
+        pool.setServers(servers);
+        pool.setFailover(true);
+        pool.setInitConn(10);
+        pool.setMinConn(5);
+        pool.setMaxConn(250);
+        pool.setMaintSleep(30);
+        pool.setNagle(false);
+        pool.setSocketTO(3000);
+        pool.setAliveCheck(true);
+        pool.initialize();
+        MemCachedClient memCachedClient = new MemCachedClient("Przychodnia");
 
-        ApplicationService applicationService = new ApplicationService(hazelcastInstance,deleteService,updateService,medicineService);
+        Scanner in = new Scanner(System.in);
+
+        DeleteService deleteService = new DeleteService(in, memCachedClient);
+        MedicineService medicineService = new MedicineService(in,memCachedClient);
+        UpdateService updateService = new UpdateService(in,memCachedClient);
+
+        ApplicationService applicationService = new ApplicationService(deleteService,updateService,medicineService,in,memCachedClient);
         AppManager appManager = new AppManager(applicationService);
         appManager.controlApplicationFlow();
     }

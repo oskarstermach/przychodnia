@@ -1,14 +1,15 @@
 package pl.oskarstermach.przychodnia.service;
 
-import com.hazelcast.core.HazelcastInstance;
+import com.whalin.MemCached.MemCachedClient;
 
 import java.util.Scanner;
 
 public abstract class AbstractService {
-    public Scanner in = new Scanner(System.in);
-    public HazelcastInstance instance;
+    public Scanner in;
+    public MemCachedClient memCachedClient;
 
-    public AbstractService(HazelcastInstance instance) {
-        this.instance = instance;
+    public AbstractService(Scanner in, MemCachedClient memCachedClient) {
+        this.in = in;
+        this.memCachedClient = memCachedClient;
     }
 }
