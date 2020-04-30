@@ -36,6 +36,7 @@ public class AppManager {
                     applicationService.getEntries();
                     break;
                 case TOP_MEDICINES:
+                    applicationService.showTopRatedMedicines();
                     break;
                 case INVALID:
                     System.out.println("Unrecognized operation!");

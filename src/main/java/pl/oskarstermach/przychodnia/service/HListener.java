@@ -20,6 +20,7 @@ import pl.oskarstermach.przychodnia.HConfig;
 import pl.oskarstermach.przychodnia.models.Receipt;
 
 public class HListener {
+
     public static void main(String[] args) throws UnknownHostException {
         Config config = HConfig.getConfig();
 

@@ -17,13 +17,10 @@ import java.util.Set;
 
 import static pl.oskarstermach.przychodnia.models.PredicateValueNames.predicateValues;
 
-public class UpdateService {
-    private HazelcastInstance instance;
-    private Scanner in = new Scanner(System.in);
+public class UpdateService extends AbstractService{
 
-    public UpdateService() throws UnknownHostException {
-        Config config = HConfig.getConfig();
-        this.instance = Hazelcast.newHazelcastInstance(config);
+    public UpdateService(HazelcastInstance instance) {
+        super(instance);
     }
 
     public void updateSelection() {

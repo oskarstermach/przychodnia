@@ -10,35 +10,43 @@ import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.UUID;
 
-public class ApplicationService {
-    private HazelcastInstance instance;
+public class ApplicationService extends AbstractService{
     private DeleteService deleteService;
     private UpdateService updateService;
+    private MedicineService medicineService;
 
-    public ApplicationService() throws UnknownHostException {
-        this.updateService = new UpdateService();
-        Config config = HConfig.getConfig();
-        this.instance = Hazelcast.newHazelcastInstance(config);
-        deleteService = new DeleteService();
+    public ApplicationService(HazelcastInstance instance, DeleteService deleteService, UpdateService updateService, MedicineService medicineService) {
+        super(instance);
+        this.deleteService = deleteService;
+        this.updateService = updateService;
+        this.medicineService = medicineService;
     }
 
-    public void addNewEntry() throws UnknownHostException {
+    public void addNewEntry(){
         Map<String, Receipt> receipts = instance.getMap("receipts");
         receipts.put(UUID.randomUUID().toString(), Builder.buildReceipt());
     }
 
-    public void deleteEntry() throws UnknownHostException {
+    public void deleteEntry(){
         deleteService.deleteOptionSelector();
     }
 
-    public void getEntries() throws UnknownHostException {
+    public void getEntries() {
         Map<String, Receipt> receipts = instance.getMap("receipts");
-        receipts.values().forEach(System.out::println);
+
+        if(receipts.values().size() > 0) {
+            receipts.values().forEach(System.out::println);
+        }else{
+            System.out.println("No receipts in the system!");
+        }
     }
 
     public void updateEntry(){
         updateService.updateSelection();
     }
 
+    public void showTopRatedMedicines(){
+        medicineService.selectOption();
+    }
 
 }

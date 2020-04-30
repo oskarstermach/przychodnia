@@ -1,28 +1,20 @@
 package pl.oskarstermach.przychodnia.service;
 
-import com.hazelcast.config.Config;
-import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
-import pl.oskarstermach.przychodnia.HConfig;
 import pl.oskarstermach.przychodnia.models.PredicateValueNames;
 import pl.oskarstermach.przychodnia.models.Receipt;
 
-import java.net.UnknownHostException;
 import java.util.Collection;
-import java.util.Scanner;
 
 import static pl.oskarstermach.przychodnia.models.PredicateValueNames.predicateValues;
 
-public class DeleteService {
-    private HazelcastInstance instance;
-    private Scanner in = new Scanner(System.in);
+public class DeleteService extends AbstractService{
 
-    public DeleteService() throws UnknownHostException {
-        Config config = HConfig.getConfig();
-        this.instance = Hazelcast.newHazelcastInstance(config);
+    public DeleteService(HazelcastInstance instance) {
+        super(instance);
     }
 
     public void deleteOptionSelector() {
@@ -70,9 +62,22 @@ public class DeleteService {
         IMap<String, Receipt> receipts = instance.getMap("receipts");
         Predicate<String, Receipt> namePredicate = Predicates.equal(fieldName, value);
         Collection<Receipt> foundValues = receipts.values(Predicates.and(namePredicate));
-        System.out.println("Deleting: ");
-        foundValues.forEach(System.out::println);
-        receipts.removeAll(namePredicate);
+
+        if(foundValues.size() > 0) {
+            System.out.println("Found: ");
+            foundValues.forEach(System.out::println);
+
+            System.out.println("Delete record(s)? Y/N");
+
+            if(in.nextLine().toUpperCase().equals("Y")){
+                receipts.removeAll(namePredicate);
+                System.out.println("Delete complete!");
+            }
+        }else{
+            System.out.println("No values found");
+        }
+
+
     }
 
 }
