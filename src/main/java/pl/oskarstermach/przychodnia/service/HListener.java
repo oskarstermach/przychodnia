@@ -21,71 +21,68 @@ import pl.oskarstermach.przychodnia.models.Receipt;
 
 public class HListener {
 
-    public static void main(String[] args) throws UnknownHostException {
-        Config config = HConfig.getConfig();
+    public static void attachListener(HazelcastInstance instance) throws UnknownHostException {
 
-		HazelcastInstance instance = Hazelcast.newHazelcastInstance(config);
+        instance.addDistributedObjectListener(new DistributedObjectListener() {
 
-		instance.addDistributedObjectListener(new DistributedObjectListener() {
+            @Override
+            public void distributedObjectDestroyed(DistributedObjectEvent e) {
+                System.out.println(e);
+            }
 
-			@Override
-			public void distributedObjectDestroyed(DistributedObjectEvent e) {
-				System.out.println(e);
-			}
+            @Override
+            public void distributedObjectCreated(DistributedObjectEvent e) {
+                System.out.println(e);
+            }
+        });
 
-			@Override
-			public void distributedObjectCreated(DistributedObjectEvent e) {
-				System.out.println(e);
-			}
-		});
+        instance.getCluster().addMembershipListener(new MembershipListener() {
 
-		instance.getCluster().addMembershipListener(new MembershipListener() {
+            @Override
+            public void memberRemoved(MembershipEvent e) {
+                System.out.println(e);
+            }
 
-			@Override
-			public void memberRemoved(MembershipEvent e) {
-				System.out.println(e);
-			}
+            @Override
+            public void memberAdded(MembershipEvent e) {
+                System.out.println(e);
+            }
+        });
 
-			@Override
-			public void memberAdded(MembershipEvent e) {
-				System.out.println(e);
-			}
-		});
+        PartitionService partitionService = instance.getPartitionService();
+        partitionService.addMigrationListener(new MigrationListener() {
 
-		PartitionService partitionService = instance.getPartitionService();
-		partitionService.addMigrationListener(new MigrationListener() {
-			
-			@Override
-			public void replicaMigrationFailed(ReplicaMigrationEvent e) {
-				System.out.println(e);
-			}
-			
-			@Override
-			public void replicaMigrationCompleted(ReplicaMigrationEvent e) {
-				System.out.println(e);
-			}
-			
-			@Override
-			public void migrationStarted(MigrationState s) {
-				System.out.println(s);
-			}
-			
-			@Override
-			public void migrationFinished(MigrationState s) {
-				System.out.println(s);
-			}
-		});
+            @Override
+            public void replicaMigrationFailed(ReplicaMigrationEvent e) {
+                System.out.println(e);
+            }
 
-		IMap<Long, Receipt> students = instance.getMap("receipts");
+            @Override
+            public void replicaMigrationCompleted(ReplicaMigrationEvent e) {
+                System.out.println(e);
+            }
 
-		students.addEntryListener(new EntryAddedListener<String, Receipt>() {
+            @Override
+            public void migrationStarted(MigrationState s) {
+                System.out.println(s);
+            }
 
-			@Override
-			public void entryAdded(EntryEvent<String, Receipt> e) {
-				System.out.println(e);
-			}
-		}, true);
+            @Override
+            public void migrationFinished(MigrationState s) {
+                System.out.println(s);
+            }
+        });
 
-	}
+        IMap<Long, Receipt> students = instance.getMap("receipts");
+
+        students.addEntryListener(new EntryAddedListener<String, Receipt>() {
+
+            @Override
+            public void entryAdded(EntryEvent<String, Receipt> e) {
+                System.out.println(e);
+            }
+        }, true);
+
+    }
 
 }

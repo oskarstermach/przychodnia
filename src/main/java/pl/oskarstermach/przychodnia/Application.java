@@ -6,6 +6,7 @@ import com.hazelcast.core.HazelcastInstance;
 import pl.oskarstermach.przychodnia.models.Medicine;
 import pl.oskarstermach.przychodnia.service.ApplicationService;
 import pl.oskarstermach.przychodnia.service.DeleteService;
+import pl.oskarstermach.przychodnia.service.HListener;
 import pl.oskarstermach.przychodnia.service.MedicineService;
 import pl.oskarstermach.przychodnia.service.UpdateService;
 
@@ -15,6 +16,7 @@ public class Application {
     public static void main(String[] args) throws IOException {
         Config config = HConfig.getConfig();
         HazelcastInstance hazelcastInstance = Hazelcast.newHazelcastInstance(config);
+        HListener.attachListener(hazelcastInstance);
 
         DeleteService deleteService = new DeleteService(hazelcastInstance);
         MedicineService medicineService = new MedicineService(hazelcastInstance);
